@@ -25,6 +25,7 @@ void main() {
     switch (menu) {
       case "0":
         print("SEARCH STUDENT");
+        searchStudent();
         break;
       case "1":
         print("ADD STUDENT");
@@ -36,12 +37,15 @@ void main() {
         break;
       case "3":
         print("UPDATE STUDENT INFO");
+        updateStudent();
         break;
       case "4":
         print("DELETE STUDENT INFO");
+        deleteStudent();
         break;
       case "5":
         print("COMPUTE CLASS AVERAGE");
+        computeClassAverage();
         break;
       case "6":
         print("Display Student With Highest Grade & Lowest Grade");
@@ -51,12 +55,12 @@ void main() {
         print("Option 7 not yet implemented");
         break;
       case "8":
-        print("EXITING PROGRAM...");
+        print("EXIT");
         break;
       default:
         print("Invalid Input");
     }
-    print("");
+    print(""); // spacing
   } while (menu != "8");
 }
 
@@ -104,12 +108,80 @@ void viewStudents() {
   }
 }
 
-void displayHighestLowest() {
+void searchStudent() {
+  stdout.write("Enter name to search: ");
+  String? searchName = stdin.readLineSync();
+
+  var found = students.where((s) => s["name"].toString().toLowerCase() == searchName?.toLowerCase()).toList();
+  if (found.isEmpty) {
+    print("No student found with name $searchName.");
+  } else {
+    print("Student found: $found");
+  }
+}
+
+void updateStudent() {
+  stdout.write("Enter name of student to update: ");
+  String? name = stdin.readLineSync();
+
+  for (var student in students) {
+    if (student["name"].toString().toLowerCase() == name?.toLowerCase()) {
+      stdout.write("Enter new Age: ");
+      student["age"] = stdin.readLineSync();
+
+      stdout.write("Enter new Course: ");
+      student["Course"] = stdin.readLineSync();
+
+      stdout.write("Enter new GWA: ");
+      double gwa = double.parse(stdin.readLineSync()!);
+      student["gwa"] = gwa;
+
+      if (gwa <= 1.75) {
+        student["status"] = "Excellent";
+      } else if (gwa <= 2.75) {
+        student["status"] = "Very Good";
+      } else if (gwa <= 3.75) {
+        student["status"] = "Passed";
+      } else {
+        student["status"] = "Probation";
+      }
+
+      print("Student info updated successfully.");
+      return;
+    }
+  }
+  print("Student not found.");
+}
+
+void deleteStudent() {
+  stdout.write("Enter name of student to delete: ");
+  String? name = stdin.readLineSync();
+
+  int before = students.length;
+  students.removeWhere((s) => s["name"].toString().toLowerCase() == name?.toLowerCase());
+  if (students.length < before) {
+    print("Deleted student $name successfully.");
+  } else {
+    print("No student found with name $name.");
+  }
+}
+
+void computeClassAverage() {
   if (students.isEmpty) {
     print("No students available.");
     return;
   }
 
+  double sum = students.fold(0, (prev, s) => prev + s["gwa"]);
+  double avg = sum / students.length;
+  print("Class Average GWA: $avg");
+}
+
+void displayHighestLowest() {
+  if (students.isEmpty) {
+    print("No students available.");
+    return;
+  }
 
   var highest = students.reduce((a, b) => a["gwa"] < b["gwa"] ? a : b);
   var lowest = students.reduce((a, b) => a["gwa"] > b["gwa"] ? a : b);
