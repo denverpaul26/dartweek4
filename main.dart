@@ -16,51 +16,43 @@ void main() {
     print("   4. DELETE STUDENT INFO");
     print("   5. COMPUTE CLASS AVERAGE");
     print("   6. DISPLAY STUDENT WITH HIGHEST GRADE & LOWEST GRADE");
-    print("   7. ");
+    print("   7. COUNT TOTAL STUDENTS");
     print("   8. EXIT");
     stdout.write("\nEnter your choice (0-8): ");
 
     menu = stdin.readLineSync();
 
-    switch (menu) {
-      case "0":
-        print("SEARCH STUDENT");
-        searchStudent();
-        break;
-      case "1":
-        print("ADD STUDENT");
-        addStudent();
-        break;
-      case "2":
-        print("VIEW STUDENT LIST");
-        viewStudents();
-        break;
-      case "3":
-        print("UPDATE STUDENT INFO");
-        updateStudent();
-        break;
-      case "4":
-        print("DELETE STUDENT INFO");
-        deleteStudent();
-        break;
-      case "5":
-        print("COMPUTE CLASS AVERAGE");
-        computeClassAverage();
-        break;
-      case "6":
-        print("Display Student With Highest Grade & Lowest Grade");
-        displayHighestLowest();
-        break;
-      case "7":
-        print("Option 7 not yet implemented");
-        break;
-      case "8":
-        print("EXIT");
-        break;
-      default:
-        print("Invalid Input");
+    if (menu == "0") {
+      print("SEARCH STUDENT");
+      searchStudent();
+    } else if (menu == "1") {
+      print("ADD STUDENT");
+      addStudent();
+    } else if (menu == "2") {
+      print("VIEW STUDENT LIST");
+      viewStudents();
+    } else if (menu == "3") {
+      print("UPDATE STUDENT INFO");
+      updateStudent();
+    } else if (menu == "4") {
+      print("DELETE STUDENT INFO");
+      deleteStudent();
+    } else if (menu == "5") {
+      print("COMPUTE CLASS AVERAGE");
+      computeClassAverage();
+    } else if (menu == "6") {
+      print("Display Student With Highest Grade & Lowest Grade");
+      displayHighestLowest();
+    } else if (menu == "7") {
+      print("COUNT TOTAL STUDENTS");
+      countStudents();
+    } else if (menu == "8") {
+      print("EXIT");
+    } else {
+      print("Invalid Input");
     }
-    print(""); // spacing
+
+    print("");
   } while (menu != "8");
 }
 
@@ -95,16 +87,33 @@ void addStudent() {
     "gwa": gwa,
     "status": status
   });
+
   print("Added successfully");
 }
 
 void viewStudents() {
   if (students.isEmpty) {
     print("No students found.");
-  } else {
-    for (var student in students) {
-      print(student);
+    return;
+  }
+
+  stdout.write("Enter course to filter (or press Enter to show all): ");
+  String? courseFilter = stdin.readLineSync();
+
+  bool found = false;
+  for (int i = 0; i < students.length; i++) {
+    var student = students[i];
+    if (courseFilter == null || courseFilter.trim().isEmpty ||
+        student["Course"].toString().toLowerCase() == courseFilter.toLowerCase()) {
+      print("${i + 1}. Name: ${student["name"]}, Age: ${student["age"]}, "
+          "Course: ${student["Course"]}, GWA: ${student["gwa"]}, "
+          "Status: ${student["status"]}");
+      found = true;
     }
+  }
+
+  if (!found && courseFilter != null && courseFilter.trim().isNotEmpty) {
+    print("No students found in course $courseFilter.");
   }
 }
 
@@ -112,11 +121,18 @@ void searchStudent() {
   stdout.write("Enter name to search: ");
   String? searchName = stdin.readLineSync();
 
-  var found = students.where((s) => s["name"].toString().toLowerCase() == searchName?.toLowerCase()).toList();
-  if (found.isEmpty) {
+  bool found = false;
+  for (var student in students) {
+    if (student["name"].toString().toLowerCase() == searchName?.toLowerCase()) {
+      print("Found: Name: ${student["name"]}, Age: ${student["age"]}, "
+          "Course: ${student["Course"]}, GWA: ${student["gwa"]}, "
+          "Status: ${student["status"]}");
+      found = true;
+    }
+  }
+
+  if (!found) {
     print("No student found with name $searchName.");
-  } else {
-    print("Student found: $found");
   }
 }
 
@@ -150,6 +166,7 @@ void updateStudent() {
       return;
     }
   }
+
   print("Student not found.");
 }
 
@@ -159,6 +176,7 @@ void deleteStudent() {
 
   int before = students.length;
   students.removeWhere((s) => s["name"].toString().toLowerCase() == name?.toLowerCase());
+
   if (students.length < before) {
     print("Deleted student $name successfully.");
   } else {
@@ -172,7 +190,10 @@ void computeClassAverage() {
     return;
   }
 
-  double sum = students.fold(0, (prev, s) => prev + s["gwa"]);
+  double sum = 0;
+  for (var student in students) {
+    sum += student["gwa"];
+  }
   double avg = sum / students.length;
   print("Class Average GWA: $avg");
 }
@@ -183,9 +204,22 @@ void displayHighestLowest() {
     return;
   }
 
-  var highest = students.reduce((a, b) => a["gwa"] < b["gwa"] ? a : b);
-  var lowest = students.reduce((a, b) => a["gwa"] > b["gwa"] ? a : b);
+  var highest = students[0];
+  var lowest = students[0];
+
+  for (var student in students) {
+    if (student["gwa"] < highest["gwa"]) {
+      highest = student;
+    }
+    if (student["gwa"] > lowest["gwa"]) {
+      lowest = student;
+    }
+  }
 
   print("Highest Grade Student: ${highest["name"]}, GWA: ${highest["gwa"]}");
   print("Lowest Grade Student: ${lowest["name"]}, GWA: ${lowest["gwa"]}");
+}
+
+void countStudents() {
+  print("Total number of students: ${students.length}");
 }
