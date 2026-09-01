@@ -60,7 +60,7 @@ void main() {
       default:
         print("Invalid Input");
     }
-    print(""); // spacing
+    print("");
   } while (menu != "8");
 }
 
